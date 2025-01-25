@@ -18,7 +18,7 @@ async function run() {
 run().catch(console.dir)
 
 export async function execute(runabale: (client: MongoClient) => Promise<any>) {
-    let output = null;
+    var output = null;
     try {
         await client.connect()
         output = await runabale(client)
