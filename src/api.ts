@@ -3,6 +3,7 @@ import { execute } from "./connection";
 import { Contact, ContactFilter } from "./contact";
 import { validate } from "class-validator";
 import { Filter, ObjectId } from "mongodb";
+import { exec } from "child_process";
 
 const api = Router();
 
@@ -32,13 +33,13 @@ api.post('/add', async (req, res) => {
 
 function getFilter(query: qs.ParsedQs): Array<Filter<Contact>> {
     return Object.entries(query).map(([key, value]) => {
-        if(key === "id"){
-            if(Array.isArray(value)) {
-                return { _id: {$in: value.filter(v => ObjectId.isValid(v.toString())).map((v) => ObjectId.createFromHexString(v.toString()))} };
+        if (key === "id") {
+            if (Array.isArray(value)) {
+                return { _id: { $in: value.filter(v => ObjectId.isValid(v.toString())).map((v) => ObjectId.createFromHexString(v.toString())) } };
             }
             return { _id: ObjectId.createFromHexString(value?.toString() ?? "") }
         }
-        if(Array.isArray(value)) {
+        if (Array.isArray(value)) {
             return { [key]: { $in: value } }
         }
         return { [key]: value }
@@ -57,6 +58,27 @@ api.get('/delete', async (req, res) => {
         ).deletedCount;
     });
     res.send({ deleted: deleted });
+});
+
+api.post('/update', async (req, res) => {
+    const tmp = getFilter(req.query);
+    const v = await execute(async (client) => {
+        let wanted = await client.db(process.env.DB_NAME).collection<Contact>(process.env.CONTACTS_COLLECTION_NAME!).find({ $or: tmp }).toArray();
+        if (wanted.length === 0) {
+            res.status(404).send({ message: "No item fits the filter" });
+            return null;
+        }
+        const poss = new Contact({ ...wanted[0], ...req.body });
+        const val = await validate(poss);
+        if (val.length > 0) {
+            res.status(400).send(val);
+            return null;
+        }
+        return (await client.db(process.env.DB_NAME).collection<Contact>(process.env.CONTACTS_COLLECTION_NAME!).updateMany({ $or: tmp }, { $set: poss })).modifiedCount;
+    });
+    if (v !== null) {
+        res.send({ updated: v });
+    }
 });
 
 export default api;
