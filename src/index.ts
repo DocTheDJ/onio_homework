@@ -2,7 +2,7 @@ import express, { json, urlencoded } from 'express';
 import api from './api';
 import { connectToDatabase, disconnectFromDatabase } from './connection';
 
-const app = express();
+export const app = express();
 const port = process.env.PORT || 3000;
 
 app.use(urlencoded({ extended: true }));
@@ -14,7 +14,7 @@ app.use(json());
 
 app.use("/api", api);
 
-const server = app.listen(port, async () => {
+export const server = app.listen(port, async () => {
     await connectToDatabase();
     console.log(`Server running at http://localhost:${port}`);
 });
