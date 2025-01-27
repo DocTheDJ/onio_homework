@@ -24,6 +24,7 @@
         "typescript": "^5.7.3"
     },
     "dependencies": {
+        "@supabase/supabase-js": "^2.48.1",
         "class-validator": "^0.14.1",
         "dotenv": "^16.4.7",
         "mongodb": "^6.12.0"

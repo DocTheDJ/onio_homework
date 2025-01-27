@@ -1,6 +1,6 @@
 import { Router, Request } from "express";
-import { connectToDatabase, useContacts } from "./connection";
-import { Contact, ContactFilter } from "./contact";
+import { connectToDatabase, useContacts } from "../connection";
+import { Contact, ContactFilter } from "../contact";
 import { validate } from "class-validator";
 import { Filter, ObjectId } from "mongodb";
 

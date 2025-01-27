@@ -1,5 +1,6 @@
 import express, { json, urlencoded } from 'express';
-import api from './api';
+import api from './routes/api';
+import supabase from './routes/supabase';
 import { connectToDatabase, disconnectFromDatabase } from './connection';
 
 export const app = express();
@@ -13,6 +14,7 @@ app.use(json());
 // });
 
 app.use("/api", api);
+app.use("/supabase", supabase);
 
 export const server = app.listen(port, async () => {
     await connectToDatabase();
