@@ -1,6 +1,7 @@
 import express, { json, urlencoded } from 'express';
 import api from './routes/api';
 import supabase from './routes/supabase';
+import prisma from "./routes/prisma";
 import { connectToDatabase, disconnectFromDatabase } from './connection';
 
 export const app = express();
@@ -15,6 +16,7 @@ app.use(json());
 
 app.use("/api", api);
 app.use("/supabase", supabase);
+app.use("/prisma", prisma)
 
 export const server = app.listen(port, async () => {
     await connectToDatabase();
